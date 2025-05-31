@@ -1,1 +1,22 @@
+config {
+    type: 'incremental',
+    schema: 'my_dataset',
+    name: 'fact_orders',
+    bigquery: {
+    partitionBy: "DATE(ordered_time)"
+  }
+}
 
+
+SELECT DISTINCT
+order_id,
+TIMESTAMP(placed_timestamp) as ordered_time,
+SUBSTR(TO_HEX(SHA256(customer_name)),1,5) as customer_id,
+SUBSTR(TO_HEX(SHA256(item_name)),1,5) as item_id,
+total_amount,
+quantity
+from ${ref('bq_compatible_table')}
+-- to avoid pushing repeating data into table
+where TIMESTAMP(placed_timestamp) > (
+    SELECT MAX(ordered_time) from ${self()}
+)
