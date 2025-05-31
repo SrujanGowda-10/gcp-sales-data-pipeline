@@ -1,1 +1,22 @@
+config {
+    type: 'table',
+    schema: 'my_dataset',
+    name: 'bq_compatible_table'
+}
 
+
+SELECT
+  message_id,
+  publish_time,
+  subscription_name,
+  attributes,
+  JSON_VALUE(DATA, '$.order_id') AS order_id,
+  JSON_VALUE(DATA, '$.customer_name') AS customer_name,
+  JSON_VALUE(DATA, '$.timestamp') AS placed_timestamp,
+  JSON_VALUE(DATA, '$.total_amount') AS total_amount,
+  JSON_VALUE(item_arr, '$.item_name') AS item_name,
+  JSON_VALUE(item_arr, '$.quantity') AS quantity,
+  JSON_VALUE(item_arr, '$.price') AS price
+FROM
+  ${ref('sales_stage')},
+  UNNEST(JSON_EXTRACT_ARRAY(DATA, '$.items')) AS item_arr
