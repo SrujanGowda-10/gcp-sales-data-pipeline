@@ -1,1 +1,13 @@
+config {
+    type: 'incremental',
+    schema: 'my_dataset',
+    name: 'dim_customer'
+}
 
+SELECT DISTINCT
+SUBSTR(TO_HEX(SHA256(customer_name)),1,5) as customer_id,
+customer_name
+from ${ref('bq_compatible_table')}
+WHERE SUBSTR(TO_HEX(SHA256(customer_name)),1,5) NOT IN (
+    SELECT DISTINCT customer_id from ${self()}
+)
