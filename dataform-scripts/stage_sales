@@ -1,1 +1,5 @@
-
+config {
+    type: 'declaration',
+    schema: 'my_dataset',
+    name: 'sales_stage'
+}
